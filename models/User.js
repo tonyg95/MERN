@@ -1,0 +1,20 @@
+//capital name because it's a model
+
+const mongoose = require('mongoose');
+const UserSchema = new mongoose.Schema({
+    name:{
+        type: String,
+        required: TextTrackCue
+    },
+    email:{
+        type:String,
+        required: true,
+        unique:true
+    },
+    password:{
+        type:String,
+        required:true
+    }
+});
+
+module.exports = User = mongoose.model('user',UserSchema);
