@@ -1,16 +1,13 @@
 const express = require('express');
 
 const router = express.Router();
-
 const config = require('config');
-
-const bcrypt = require('bcryptjs');
-
+const jwt = require('jsonwebtoken');
 const {check, validationResult} = require('express-validator');
 
-const jwt = require('jsonwebtoken');
+const User = require('../../models/User');
 
-const User = require('../../models/User'); //grab model
+const bcrypt = require('bcryptjs');
 // @route post appi/users
 // @desc register user
 // @access public no token
@@ -26,34 +23,39 @@ router.post('/',
     if(!errors.isEmpty()){
         return res.status(400).json({errors:errors.array()});
     }
-    const { name, email, password} = req.body; //destructure
 
-    try {
-        let user = await User.findOne({email: email});
-        if(user){//if found email in the database
-            return res.status(400).json({ errors:[{msg: 'user already exists'}]});
+    const { name, email, password} = req.body;//grab information from page
+
+    try{
+        let user = await User.findOne({email: email});//search db for same email
+        if(user){
+            return res.status(400).json({errors:[{msg: 'user already exists'}]});
         }
-        user = new User({
+
+        user = new User({ //create new model
             name,
             email,
             password
         });
 
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(password,salt);
-        await user.save();
-        const payload = {
-            user:{
+        const salt = await bcrypt.genSalt(10);//generate salt
+
+        user.password = await bcrypt.hash(password, salt);//encrypt password
+
+        await user.save();//returns promise that contains
+
+        const payload = { //object with a user that has an id
+            user: {
                 id: user.id
             }
-        }
-        jwt.sign(payload, config.get('jwtSecret'),
-        { expiresIn: 360000 },
-        (err,token)=> {
+        };
+        //generate jwt token with a payload,secretString,options,callback(err,token)
+        jwt.sign(payload,config.get('jwtSecret'),{expiresIn: 360000},
+        (err,token)=> {//inside the callback you get either an error or a token 
             if(err) throw err;
             res.json({token});
         });
-    } catch (err) {
+    }catch(err){
         console.error(err.message);
         res.status(500).send('server error');
     }
