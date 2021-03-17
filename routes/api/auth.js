@@ -3,11 +3,6 @@ const auth = require('../../middleware/auth');
 const User = require('../../models/User');
 const router = express.Router();
 
-<<<<<<< HEAD
-const auth = require('../../middleware/auth');
-
-router.get('/',auth, (req, res) => res.send('auth route'));
-=======
 router.get('/', auth, async (req, res) => {
 try {
     const user = await User.findById(req.user.id);
@@ -17,6 +12,5 @@ try {
 }
 
 });
->>>>>>> br1
 
 module.exports = router;
