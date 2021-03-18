@@ -10,10 +10,8 @@ if(!token){
     return res.status(401).json({msg:'no token'});
 }
 try{
-    const decoded = jwt.verify(token, config.get('jwtSecret'));
-    console.log(req.user);
-    req.user = decoded.user;
-    console.log(req.user);
+    const decoded = jwt.verify(token, config.get('jwtSecret')); //returns an object
+    req.user = decoded.user; //turns req.user into the payload recieved => user: { id: user.id }
     next();
 }catch(err){
     res.status(401).json({msg:'token not valid'});
